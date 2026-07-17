@@ -1,0 +1,31 @@
+hero:
+  headline: Websites, die Ihre Kunden finden
+  subheadline: >-
+    Schnell, sauber und über eine einfache Editor-Oberfläche selbst pflegbar —
+    ganz ohne Agentur-Wartezeit.
+  ctaLabel: Kontakt aufnehmen
+  ctaHref: /kontakt/
+  image: ../../assets/homepage/hero/image.jpg
+sections:
+  - discriminant: featureGrid
+    value:
+      heading: Warum dieser Stack
+      items:
+        - title: Schnell
+          description: Statisch generiert, keine Server-Wartezeit für Besucher.
+        - title: SEO-stark
+          description: Sauberes HTML, gute Core Web Vitals von Haus aus.
+        - title: Selbst pflegbar
+          description: Kunden bearbeiten Inhalte über einen einfachen Browser-Editor.
+  - discriminant: callToAction
+    value:
+      heading: Bereit für Ihre neue Website?
+      ctaLabel: Jetzt anfragen
+      ctaHref: /kontakt/
+  - discriminant: richText
+    value:
+      heading: Halloooooo
+      body: |
+        Wer daaa?
+
+        oder auch net

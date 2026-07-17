@@ -1,0 +1,11 @@
+siteName: Muster GmbH
+tagline: SEO-optimierte Websites, die schnell laden
+contactEmail: hallo@beispiel.de
+phone: "+49 30 1234567"
+address: Musterstraße 1, 10115 Berlin
+socialLinks:
+  - platform: linkedin
+    url: https://linkedin.com/company/beispiel
+defaultSeo:
+  title: Muster GmbH — Startseite
+  description: Beispielhafte Startseite des Astro + Keystatic Agentur-Starters.

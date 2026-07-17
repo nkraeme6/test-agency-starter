@@ -1,0 +1,47 @@
+---
+export const prerender = true;
+
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { renderMarkdoc } from '../../lib/markdoc';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), (await import('../../../keystatic.config')).default);
+  const pages = await reader.collections.pages.all();
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const page = await reader.collections.pages.read(slug!, { resolveLinkedFiles: true });
+
+if (!page) {
+  return Astro.redirect('/');
+}
+
+const contentHtml = renderMarkdoc(page.content.node);
+---
+
+<BaseLayout title={page.title} description={page.seoDescription ?? undefined}>
+  <main class="wrap">
+    <article>
+      <h1>{page.title}</h1>
+      <div class="prose" set:html={contentHtml} />
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  .prose :global(p) {
+    margin: 0 0 1.2em;
+  }
+</style>

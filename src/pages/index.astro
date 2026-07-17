@@ -1,0 +1,161 @@
+---
+// Public homepage. Fully static — Keystatic never touches this at runtime,
+// it only writes the source files this page reads from at build time.
+export const prerender = true;
+
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../keystatic.config';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+
+const homepage = await reader.singletons.homepage.read();
+const settings = await reader.singletons.siteSettings.read();
+
+const title = settings?.defaultSeo?.title || settings?.siteName || 'Website';
+const description = settings?.defaultSeo?.description ?? undefined;
+---
+
+<BaseLayout title={title} description={description}>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">{settings?.tagline}</p>
+      <h1>{homepage?.hero?.headline ?? 'Willkommen'}</h1>
+      {homepage?.hero?.subheadline && <p class="lede">{homepage.hero.subheadline}</p>}
+      {
+        homepage?.hero?.ctaLabel && homepage?.hero?.ctaHref && (
+          <a class="cta" href={homepage.hero.ctaHref}>
+            {homepage.hero.ctaLabel}
+          </a>
+        )
+      }
+    </div>
+  </header>
+
+  <main class="wrap">
+    {
+      (homepage?.sections ?? []).map((section) => {
+        if (section.discriminant === 'richText') {
+          const { heading } = section.value;
+          return (
+            <section class="block">
+              {heading && <h2>{heading}</h2>}
+              <p class="muted">
+                Textinhalt wird über Markdoc gerendert — Platzhalter im Starter-Template.
+              </p>
+            </section>
+          );
+        }
+        if (section.discriminant === 'featureGrid') {
+          const { heading, items } = section.value;
+          return (
+            <section class="block">
+              {heading && <h2>{heading}</h2>}
+              <div class="grid">
+                {items.map((item) => (
+                  <div class="card">
+                    <h3>{item.title}</h3>
+                    <p class="muted">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        }
+        if (section.discriminant === 'callToAction') {
+          const { heading, ctaLabel, ctaHref } = section.value;
+          return (
+            <section class="block cta-banner">
+              {heading && <h2>{heading}</h2>}
+              {ctaLabel && ctaHref && (
+                <a class="cta" href={ctaHref}>
+                  {ctaLabel}
+                </a>
+              )}
+            </section>
+          );
+        }
+        return null;
+      })
+    }
+  </main>
+
+  <footer class="wrap footer">
+    <p class="muted">{settings?.address}</p>
+    <p class="muted">{settings?.contactEmail} · {settings?.phone}</p>
+  </footer>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .hero {
+    padding: 6rem 0 4rem;
+    border-bottom: 1px solid #e6e3da;
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    max-width: 20ch;
+  }
+
+  .lede {
+    max-width: 40ch;
+    color: var(--color-muted);
+    font-size: 1.15rem;
+  }
+
+  .cta {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-accent);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .block {
+    padding: 3.5rem 0;
+    border-bottom: 1px solid #e6e3da;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid #e6e3da;
+    border-radius: 8px;
+  }
+
+  .cta-banner {
+    text-align: center;
+  }
+
+  .footer {
+    padding: 3rem 0;
+    font-size: 0.9rem;
+  }
+
+  .muted {
+    color: var(--color-muted);
+  }
+</style>

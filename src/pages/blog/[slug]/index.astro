@@ -1,0 +1,55 @@
+---
+export const prerender = true;
+
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../../keystatic.config';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { renderMarkdoc } from '../../../lib/markdoc';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+
+export async function getStaticPaths() {
+  const reader = createReader(process.cwd(), (await import('../../../../keystatic.config')).default);
+  const posts = await reader.collections.posts.all();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await reader.collections.posts.read(slug!, { resolveLinkedFiles: true });
+
+if (!post) {
+  return Astro.redirect('/blog/');
+}
+
+const contentHtml = renderMarkdoc(post.content.node);
+---
+
+<BaseLayout title={post.title} description={post.seoDescription ?? undefined}>
+  <main class="wrap">
+    <article>
+      <h1>{post.title}</h1>
+      <time>{new Date(post.publishedDate).toLocaleDateString('de-DE')}</time>
+      <div class="prose" set:html={contentHtml} />
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  time {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+  .prose {
+    margin-top: 2rem;
+  }
+  .prose :global(p) {
+    margin: 0 0 1.2em;
+  }
+</style>

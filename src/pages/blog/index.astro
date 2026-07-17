@@ -1,0 +1,63 @@
+---
+export const prerender = true;
+
+import { createReader } from '@keystatic/core/reader';
+import keystaticConfig from '../../../keystatic.config';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const reader = createReader(process.cwd(), keystaticConfig);
+const settings = await reader.singletons.siteSettings.read();
+const posts = await reader.collections.posts.all();
+
+const sorted = posts.sort(
+  (a, b) => +new Date(b.entry.publishedDate) - +new Date(a.entry.publishedDate)
+);
+---
+
+<BaseLayout title={`Blog — ${settings?.siteName ?? ''}`}>
+  <main class="wrap">
+    <h1>Blog</h1>
+    <ul class="post-list">
+      {
+        sorted.map((post) => (
+          <li>
+            <a href={`/blog/${post.slug}/`}>
+              <h2>{post.entry.title}</h2>
+              {post.entry.excerpt && <p class="muted">{post.entry.excerpt}</p>}
+              <time>{new Date(post.entry.publishedDate).toLocaleDateString('de-DE')}</time>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</BaseLayout>
+
+<style>
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  .post-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 2rem;
+  }
+  .post-list a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .post-list h2 {
+    margin-bottom: 0.25rem;
+  }
+  time {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  .muted {
+    color: var(--color-muted);
+  }
+</style>
